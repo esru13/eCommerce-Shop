@@ -299,7 +299,7 @@ export default function ProductDetailsPage() {
                         isFavorite ? "fill-red-500 text-red-500" : ""
                       }`}
                     />
-                    {isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+                    {isFavorite ? "Remove Favourite" : "Add to Favorites"}
                   </Button>
                 </div>
                 <Button
