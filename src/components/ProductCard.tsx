@@ -1,0 +1,88 @@
+"use client";
+
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Heart } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { toggleFavorite } from "@/store/slices/favoritesSlice";
+import { Product } from "@/types/product";
+
+interface ProductCardProps {
+  product: Product;
+}
+
+export default function ProductCard({ product }: ProductCardProps) {
+  const dispatch = useAppDispatch();
+  const favorites = useAppSelector((state) => state.favorites.favorites);
+  const isFavorite = favorites.includes(product.id);
+
+  const handleToggleFavorite = () => {
+    dispatch(toggleFavorite(product));
+  };
+
+  const imageUrl = product.thumbnail || product.images[0] || "";
+
+  return (
+    <Card className="flex flex-col h-full hover:shadow-lg transition-shadow">
+      <CardHeader className="p-0">
+        <div className="relative w-full h-48 bg-gray-100 rounded-t-lg overflow-hidden">
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={product.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-400">
+              No Image
+            </div>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="flex-1 p-4">
+        <div className="space-y-2">
+          <p className="text-xs text-gray-500 uppercase">{product.category}</p>
+          <h3 className="font-semibold text-sm line-clamp-2 min-h-[2.5rem]">
+            {product.title}
+          </h3>
+          <div className="flex items-center justify-between">
+            <p className="text-lg font-bold">${product.price}</p>
+            <div className="flex items-center gap-1">
+              <span className="text-sm text-yellow-500">★</span>
+              <span className="text-sm">{product.rating}</span>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+      <CardFooter className="p-4 pt-0">
+        <Button
+          onClick={handleToggleFavorite}
+          variant={isFavorite ? "outline" : "outline"}
+          className={`w-full ${
+            isFavorite
+              ? "border-red-500 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
+              : ""
+          }`}
+        >
+          <Heart
+            className={`w-4 h-4 mr-2 ${
+              isFavorite
+                ? "fill-red-500 text-red-500"
+                : ""
+            }`}
+          />
+          {isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
+
