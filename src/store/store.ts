@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
-
-// Placeholder reducer - replace with your actual reducers when you add them
-const placeholderReducer = (state = {}) => state;
+import productsReducer from "./slices/productsSlice";
+import favoritesReducer from "./slices/favoritesSlice";
+import categoriesReducer from "./slices/categoriesSlice";
 
 export const store = configureStore({
   reducer: {
-    placeholder: placeholderReducer,
+    products: productsReducer,
+    favorites: favoritesReducer,
+    categories: categoriesReducer,
   },
 });
 
