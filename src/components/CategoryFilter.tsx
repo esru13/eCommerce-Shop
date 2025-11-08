@@ -34,8 +34,8 @@ export default function CategoryFilter() {
   }
 
   return (
-    <div className="mt-4">
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+    <div className="sticky top-16 z-40 bg-gray-50 dark:bg-gray-900 py-2 -mx-4 px-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         <Button
           variant={selectedCategory === null ? "default" : "outline"}
           size="sm"

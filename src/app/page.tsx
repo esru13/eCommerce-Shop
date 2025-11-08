@@ -46,11 +46,11 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4 py-4">
-        <div className="mb-8">
+      <div className="container mx-auto px-4 py-2">
+        <div className="mb-2 flex items-center">
           <SearchBar />
-          <CategoryFilter />
         </div>
+        <CategoryFilter />
 
         {error && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded mb-4">
