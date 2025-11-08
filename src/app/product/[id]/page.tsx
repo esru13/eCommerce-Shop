@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Heart, Star, Package, Tag, Edit, Trash2 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { toggleFavorite, removeFavorite } from "@/store/slices/favoritesSlice";
+import { hydrateAuth } from "@/store/slices/authSlice";
 import ConfirmDialog from "@/components/ConfirmDialog";
 
 interface ProductDetails {
@@ -32,6 +33,8 @@ export default function ProductDetailsPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const favorites = useAppSelector((state) => state.favorites.favorites);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const [mounted, setMounted] = useState(false);
 
   const [product, setProduct] = useState<ProductDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,6 +45,11 @@ export default function ProductDetailsPage() {
 
   const productId = params.id as string;
   const isFavorite = product ? favorites.includes(product.id) : false;
+
+  useEffect(() => {
+    dispatch(hydrateAuth());
+    setMounted(true);
+  }, [dispatch]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -83,6 +91,13 @@ export default function ProductDetailsPage() {
   };
 
   const handleDeleteClick = () => {
+    if (!isAuthenticated) {
+      toast.error("Please login to delete products", {
+        description: "Redirecting to login page...",
+      });
+      router.push("/login");
+      return;
+    }
     setShowDeleteDialog(true);
   };
 
@@ -117,7 +132,7 @@ export default function ProductDetailsPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto px-4 py-8">
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
@@ -129,14 +144,14 @@ export default function ProductDetailsPage() {
 
   if (error || !product) {
     return (
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto px-4 py-8">
-          <Link href="/" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6">
+          <Link href="/" className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Products
           </Link>
           <div className="text-center py-12">
-            <p className="text-red-600 text-lg mb-4">{error || "Product not found"}</p>
+            <p className="text-red-600 dark:text-red-400 text-lg mb-4">{error || "Product not found"}</p>
             <Button onClick={() => router.push("/")}>Go to Home</Button>
           </div>
         </div>
@@ -147,21 +162,21 @@ export default function ProductDetailsPage() {
   const mainImage = product.images[selectedImage] || product.thumbnail || product.images[0] || "";
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8">
         <Link
           href="/"
-          className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6"
+          className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Products
         </Link>
 
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Images Section */}
             <div className="space-y-4">
-              <div className="relative w-full h-96 bg-gray-100 rounded-lg overflow-hidden">
+              <div className="relative w-full h-96 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
                 {mainImage ? (
                   <Image
                     src={mainImage}
@@ -171,7 +186,7 @@ export default function ProductDetailsPage() {
                     sizes="(max-width: 1024px) 100vw, 50vw"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                  <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
                     No Image
                   </div>
                 )}
@@ -183,9 +198,9 @@ export default function ProductDetailsPage() {
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      className={`relative h-20 bg-gray-100 rounded-md overflow-hidden border-2 ${
+                      className={`relative h-20 bg-gray-100 dark:bg-gray-700 rounded-md overflow-hidden border-2 ${
                         selectedImage === index
-                          ? "border-red-500"
+                          ? "border-red-500 dark:border-red-400"
                           : "border-transparent"
                       }`}
                     >
@@ -205,25 +220,25 @@ export default function ProductDetailsPage() {
             {/* Product Info Section */}
             <div className="space-y-6">
               <div>
-                <p className="text-sm text-gray-500 uppercase mb-2">{product.category}</p>
-                <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.title}</h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400 uppercase mb-2">{product.category}</p>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">{product.title}</h1>
 
                 {product.brand && (
                   <div className="flex items-center gap-2 mb-4">
-                    <Tag className="w-4 h-4 text-gray-500" />
-                    <span className="text-gray-700">Brand: {product.brand}</span>
+                    <Tag className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                    <span className="text-gray-700 dark:text-gray-300">Brand: {product.brand}</span>
                   </div>
                 )}
 
                 <div className="flex items-center gap-4 mb-6">
                   <div className="flex items-center gap-1">
                     <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                    <span className="text-lg font-semibold">{product.rating}</span>
+                    <span className="text-lg font-semibold text-gray-900 dark:text-white">{product.rating}</span>
                   </div>
                   {product.stock !== undefined && (
                     <div className="flex items-center gap-2">
-                      <Package className="w-4 h-4 text-gray-500" />
-                      <span className={`text-sm ${product.stock > 0 ? "text-green-600" : "text-red-600"}`}>
+                      <Package className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                      <span className={`text-sm ${product.stock > 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
                         {product.stock > 0 ? `In Stock (${product.stock})` : "Out of Stock"}
                       </span>
                     </div>
@@ -231,29 +246,45 @@ export default function ProductDetailsPage() {
                 </div>
 
                 <div className="mb-6">
-                  <p className="text-4xl font-bold text-gray-900">${product.price}</p>
+                  <p className="text-4xl font-bold text-gray-900 dark:text-white">${product.price}</p>
                 </div>
               </div>
 
               {product.description && (
-                <Card>
+                <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                   <CardContent className="pt-6">
-                    <h2 className="font-semibold mb-3">Description</h2>
-                    <p className="text-gray-700 leading-relaxed">{product.description}</p>
+                    <h2 className="font-semibold mb-3 text-gray-900 dark:text-white">Description</h2>
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{product.description}</p>
                   </CardContent>
                 </Card>
               )}
 
               <div className="space-y-3">
                 <div className="flex gap-4">
-                  <Button
-                    onClick={() => router.push(`/edit-product/${productId}`)}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    <Edit className="w-5 h-5 mr-2" />
-                    Edit Product
-                  </Button>
+                  {mounted && isAuthenticated ? (
+                    <Button
+                      onClick={() => router.push(`/edit-product/${productId}`)}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      <Edit className="w-5 h-5 mr-2" />
+                      Edit Product
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => {
+                        toast.error("Please login to edit products", {
+                          description: "Redirecting to login page...",
+                        });
+                        router.push("/login");
+                      }}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      <Edit className="w-5 h-5 mr-2" />
+                      Edit Product
+                    </Button>
+                  )}
                   <Button
                     onClick={handleToggleFavorite}
                     variant={isFavorite ? "outline" : "outline"}

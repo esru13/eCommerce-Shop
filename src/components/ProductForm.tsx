@@ -78,20 +78,20 @@ export default function ProductForm({
   };
 
   return (
-    <Card>
+    <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
       <CardHeader>
-        <CardTitle className="text-2xl">{title}</CardTitle>
+        <CardTitle className="text-2xl text-gray-900 dark:text-white">{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded">
               {error}
             </div>
           )}
 
           <div>
-            <label htmlFor="title" className="block text-sm font-medium mb-1">
+            <label htmlFor="title" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
               Title *
             </label>
             <Input
@@ -106,7 +106,7 @@ export default function ProductForm({
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium mb-1">
+            <label htmlFor="description" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
               Description *
             </label>
             <Textarea
@@ -122,7 +122,7 @@ export default function ProductForm({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="price" className="block text-sm font-medium mb-1">
+              <label htmlFor="price" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                 Price *
               </label>
               <Input
@@ -139,7 +139,7 @@ export default function ProductForm({
             </div>
 
             <div>
-              <label htmlFor="stock" className="block text-sm font-medium mb-1">
+              <label htmlFor="stock" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                 Stock *
               </label>
               <Input
@@ -156,7 +156,7 @@ export default function ProductForm({
           </div>
 
           <div>
-            <label htmlFor="brand" className="block text-sm font-medium mb-1">
+            <label htmlFor="brand" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
               Brand *
             </label>
             <Input
@@ -171,7 +171,7 @@ export default function ProductForm({
           </div>
 
           <div>
-            <label htmlFor="category" className="block text-sm font-medium mb-1">
+            <label htmlFor="category" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
               Category *
             </label>
             <select
@@ -180,7 +180,7 @@ export default function ProductForm({
               value={formData.category}
               onChange={handleChange}
               required
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="flex h-10 w-full rounded-md border border-input dark:border-gray-600 bg-background dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <option value="">Select a category</option>
               {categories.map((cat) => (
