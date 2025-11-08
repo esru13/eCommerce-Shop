@@ -97,7 +97,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 : ""
             }`}
           />
-          {isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+          {isFavorite ? "Remove Favorites" : "Add to Favorites"}
         </Button>
       </CardFooter>
     </Card>
