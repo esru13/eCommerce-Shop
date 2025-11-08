@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import React from "react";
 import "./globals.css";
 import { ReduxProvider } from "@/components/providers/ReduxProvider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "sonner";
 
@@ -22,9 +23,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <ReduxProvider>
-          <Navbar />
-          {children}
-          <Toaster position="top-right" richColors />
+          <ThemeProvider>
+            <Navbar />
+            {children}
+            <Toaster position="top-right" richColors />
+          </ThemeProvider>
         </ReduxProvider>
       </body>
     </html>
