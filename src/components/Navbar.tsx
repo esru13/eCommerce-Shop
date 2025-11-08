@@ -17,8 +17,12 @@ export default function Navbar() {
             <ShoppingBag className="h-6 w-6 text-black-500" />
             <span className="text-xl font-bold text-gray-900">eCommerce Shop</span>
           </Link>
-          {/* favourite icon */}
           <div className="flex items-center gap-4">
+            <Link href="/add-product">
+              <Button variant="outline" className="hidden sm:inline-flex">
+                Add Product
+              </Button>
+            </Link>
             <Link href="/favorites">
               <Button variant="outline" className="relative">
                 <Heart className="h-5 w-5 text-red-500" />
