@@ -9,9 +9,10 @@ import axiosInstance from "@/lib/axios";
 import { API_ENDPOINTS } from "@/config/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Heart, Star, Package, Tag, Edit } from "lucide-react";
+import { ArrowLeft, Heart, Star, Package, Tag, Edit, Trash2 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { toggleFavorite } from "@/store/slices/favoritesSlice";
+import { toggleFavorite, removeFavorite } from "@/store/slices/favoritesSlice";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 interface ProductDetails {
   id: number;
@@ -34,6 +35,8 @@ export default function ProductDetailsPage() {
 
   const [product, setProduct] = useState<ProductDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
 
@@ -76,6 +79,39 @@ export default function ProductDetailsPage() {
           description: `${product.title} has been added to your favorites.`,
         });
       }
+    }
+  };
+
+  const handleDeleteClick = () => {
+    setShowDeleteDialog(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!product) return;
+
+    setDeleting(true);
+
+    try {
+      await axiosInstance.delete(API_ENDPOINTS.DELETE_PRODUCT(productId));
+
+      if (isFavorite) {
+        dispatch(removeFavorite(product.id));
+      }
+
+      toast.success("Product deleted successfully", {
+        description: `${product.title} has been deleted.`,
+      });
+
+      setTimeout(() => {
+        router.push("/");
+      }, 1500);
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || "Failed to delete product";
+      toast.error("Failed to delete product", {
+        description: errorMessage,
+      });
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -208,36 +244,59 @@ export default function ProductDetailsPage() {
                 </Card>
               )}
 
-              <div className="flex gap-4">
-                <Button
-                  onClick={() => router.push(`/edit-product/${productId}`)}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  <Edit className="w-5 h-5 mr-2" />
-                  Edit Product
-                </Button>
-                <Button
-                  onClick={handleToggleFavorite}
-                  variant={isFavorite ? "outline" : "outline"}
-                  className={`flex-1 ${
-                    isFavorite
-                      ? "border-red-500 bg-red-50 text-red-600 hover:bg-red-100"
-                      : ""
-                  }`}
-                >
-                  <Heart
-                    className={`w-5 h-5 mr-2 ${
-                      isFavorite ? "fill-red-500 text-red-500" : ""
+              <div className="space-y-3">
+                <div className="flex gap-4">
+                  <Button
+                    onClick={() => router.push(`/edit-product/${productId}`)}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <Edit className="w-5 h-5 mr-2" />
+                    Edit Product
+                  </Button>
+                  <Button
+                    onClick={handleToggleFavorite}
+                    variant={isFavorite ? "outline" : "outline"}
+                    className={`flex-1 ${
+                      isFavorite
+                        ? "border-red-500 bg-red-50 text-red-600 hover:bg-red-100"
+                        : ""
                     }`}
-                  />
-                  {isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+                  >
+                    <Heart
+                      className={`w-5 h-5 mr-2 ${
+                        isFavorite ? "fill-red-500 text-red-500" : ""
+                      }`}
+                    />
+                    {isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+                  </Button>
+                </div>
+                <Button
+                  onClick={handleDeleteClick}
+                  variant="destructive"
+                  disabled={deleting}
+                  className="w-full"
+                >
+                  <Trash2 className="w-5 h-5 mr-2" />
+                  {deleting ? "Deleting..." : "Delete Product"}
                 </Button>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Product"
+        description={`Are you sure you want to delete ${product?.title}?`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
+        loading={deleting}
+      />
     </main>
   );
 }
