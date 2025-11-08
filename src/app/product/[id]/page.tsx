@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 import axiosInstance from "@/lib/axios";
 import { API_ENDPOINTS } from "@/config/api";
 import { Button } from "@/components/ui/button";
@@ -63,7 +64,18 @@ export default function ProductDetailsPage() {
 
   const handleToggleFavorite = () => {
     if (product) {
+      const wasFavorite = isFavorite;
       dispatch(toggleFavorite(product));
+      
+      if (wasFavorite) {
+        toast.info("Removed from favorites", {
+          description: `${product.title} has been removed from your favorites.`,
+        });
+      } else {
+        toast.success("Added to favorites", {
+          description: `${product.title} has been added to your favorites.`,
+        });
+      }
     }
   };
 

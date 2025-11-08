@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -26,7 +27,19 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    const wasFavorite = isFavorite;
     dispatch(toggleFavorite(product));
+    
+    if (wasFavorite) {
+      toast.info("Removed from favorites", {
+        description: `${product.title} has been removed from your favorites.`,
+      });
+    } else {
+      toast.success("Added to favorites", {
+        description: `${product.title} has been added to your favorites.`,
+      });
+    }
   };
 
   const imageUrl = product.thumbnail || product.images[0] || "";
