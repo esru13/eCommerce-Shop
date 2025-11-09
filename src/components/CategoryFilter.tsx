@@ -23,6 +23,7 @@ export default function CategoryFilter() {
       dispatch(resetProducts());
       dispatch(fetchProducts({ skip: 0, limit: 10 }));
     } else {
+      // Reset products but keep price filter
       dispatch(resetProducts());
       dispatch(setSelectedCategory(category));
       dispatch(fetchProductsByCategory(category));
@@ -43,6 +44,7 @@ export default function CategoryFilter() {
             dispatch(setSelectedCategory(null));
             dispatch(resetProducts());
             dispatch(fetchProducts({ skip: 0, limit: 10 }));
+            // Price filter will remain if set, and will be applied in page.tsx
           }}
           className="flex-shrink-0"
         >

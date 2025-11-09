@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 export default function PriceFilter() {
   const dispatch = useAppDispatch();
   const priceRange = useAppSelector((state) => state.products.priceRange);
+  const selectedCategory = useAppSelector((state) => state.products.selectedCategory);
   const [minPrice, setMinPrice] = useState(priceRange?.min?.toString() || "");
   const [maxPrice, setMaxPrice] = useState(priceRange?.max?.toString() || "");
 
@@ -25,8 +26,8 @@ export default function PriceFilter() {
   }, [priceRange]);
 
   const handleApply = () => {
-    const min = minPrice ? parseFloat(minPrice) : 0;
-    const max = maxPrice ? parseFloat(maxPrice) : Infinity;
+    const min = minPrice ? parseFloat(minPrice) || 0 : 0;
+    const max = maxPrice ? parseFloat(maxPrice) || Infinity : Infinity;
 
     if (minPrice || maxPrice) {
       dispatch(setPriceRange({ min, max }));
@@ -39,8 +40,6 @@ export default function PriceFilter() {
     setMinPrice("");
     setMaxPrice("");
     dispatch(setPriceRange(null));
-    dispatch(resetProducts());
-    dispatch(fetchProducts({ skip: 0, limit: 10 }));
   };
 
   return (

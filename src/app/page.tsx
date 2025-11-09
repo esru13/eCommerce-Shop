@@ -43,7 +43,7 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [loadMoreProducts]);
 
-  // Filter products by price range
+  // Filter products by price range (applies to all products, including category-filtered ones)
   const filteredProducts = priceRange
     ? products.filter(
         (product) =>

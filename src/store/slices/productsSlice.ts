@@ -65,8 +65,7 @@ const productsSlice = createSlice({
       state.skip = 0;
       state.total = 0;
       state.error = null;
-      state.selectedCategory = null;
-      state.priceRange = null;
+      // Don't clear selectedCategory and priceRange here - they should be cleared explicitly
     },
     setSelectedCategory: (state, action) => {
       state.selectedCategory = action.payload;
