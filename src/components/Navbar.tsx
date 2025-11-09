@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ShoppingBag, Heart, LogIn, LogOut, User, ChevronDown } from "lucide-react";
+import { ShoppingBag, Heart, LogIn, LogOut, User, ChevronDown, Plus } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout, hydrateAuth } from "@/store/slices/authSlice";
 import Link from "next/link";
@@ -52,26 +52,30 @@ export default function Navbar() {
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center space-x-2 group">
             <ShoppingBag className="h-6 w-6 text-red-500 group-hover:scale-110 transition-transform" />
-            <span className="text-xl font-bold text-gray-900 dark:text-white">eCommerce Shop</span>
+            <span className="text-xl font-bold text-gray-900 dark:text-white">
+              eCommerce<span className="hidden md:inline"> Shop</span>
+            </span>
           </Link>
           
           <div className="flex items-center gap-2 sm:gap-3">
             {mounted && isAuthenticated ? (
               <Link href="/add-product">
-                <Button variant="outline" size="sm" className="hidden sm:inline-flex hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-500 dark:hover:border-red-500">
-                  Add Product
+                <Button variant="outline" size="sm" className="hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-500 dark:hover:border-red-500">
+                  <Plus className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">Add Product</span>
                 </Button>
               </Link>
             ) : (
               <Button
                 variant="outline"
                 size="sm"
-                className="hidden sm:inline-flex hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-500 dark:hover:border-red-500"
+                className="hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-500 dark:hover:border-red-500"
                 onClick={() => {
                   router.push("/login");
                 }}
               >
-                Add Product
+                <Plus className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Add Product</span>
               </Button>
             )}
 
@@ -91,17 +95,17 @@ export default function Navbar() {
               <div className="relative" data-dropdown>
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer"
+                  className="flex items-center gap-2 px-2 md:px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer"
                 >
                   <div className="flex items-center gap-2">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
                       <User className="h-4 w-4 text-red-600 dark:text-red-400" />
                     </div>
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <span className="hidden md:inline text-sm font-medium text-gray-700 dark:text-gray-300">
                       {user.name}
                     </span>
                   </div>
-                  <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                  <ChevronDown className="hidden md:block h-4 w-4 text-gray-500 dark:text-gray-400" />
                 </button>
                 {userMenuOpen && (
                   <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 py-1 z-50">
@@ -122,8 +126,8 @@ export default function Navbar() {
             ) : (
               <Link href="/login">
                 <Button variant="outline" size="sm" className="hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-500 dark:hover:border-blue-500">
-                  <LogIn className="h-4 w-4 mr-2" />
-                  <span>Login</span>
+                  <LogIn className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">Login</span>
                 </Button>
               </Link>
             )}

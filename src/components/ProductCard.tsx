@@ -45,10 +45,10 @@ export default function ProductCard({ product }: ProductCardProps) {
   const imageUrl = product.thumbnail || product.images[0] || "";
 
   return (
-    <Card className="flex flex-col h-full hover:shadow-lg transition-shadow">
+    <Card className="flex flex-col h-full hover:shadow-lg transition-shadow bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
       <Link href={`/product/${product.id}`}>
         <CardHeader className="p-0 cursor-pointer">
-          <div className="relative w-full h-48 bg-gray-100 rounded-t-lg overflow-hidden">
+          <div className="relative w-full h-48 bg-gray-100 dark:bg-gray-700 rounded-t-lg overflow-hidden">
             {imageUrl ? (
               <Image
                 src={imageUrl}
@@ -58,7 +58,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400">
+              <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
                 No Image
               </div>
             )}
@@ -66,15 +66,15 @@ export default function ProductCard({ product }: ProductCardProps) {
         </CardHeader>
         <CardContent className="flex-1 p-4">
           <div className="space-y-2">
-            <p className="text-xs text-gray-500 uppercase">{product.category}</p>
-            <h3 className="font-semibold text-sm line-clamp-2 min-h-[2.5rem] hover:text-red-500 transition-colors">
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase">{product.category}</p>
+            <h3 className="font-semibold text-sm line-clamp-2 min-h-[2.5rem] hover:text-red-500 transition-colors text-gray-900 dark:text-white">
               {product.title}
             </h3>
             <div className="flex items-center justify-between">
-              <p className="text-lg font-bold">${product.price}</p>
+              <p className="text-lg font-bold text-gray-900 dark:text-white">${product.price}</p>
               <div className="flex items-center gap-1">
                 <span className="text-sm text-yellow-500">★</span>
-                <span className="text-sm">{product.rating}</span>
+                <span className="text-sm text-gray-900 dark:text-white">{product.rating}</span>
               </div>
             </div>
           </div>
@@ -86,7 +86,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           variant={isFavorite ? "outline" : "outline"}
           className={`w-full ${
             isFavorite
-              ? "border-red-500 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
+              ? "border-red-500 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 dark:bg-red-900/20 dark:text-red-400 dark:border-red-500 dark:hover:bg-red-900/30"
               : ""
           }`}
         >
