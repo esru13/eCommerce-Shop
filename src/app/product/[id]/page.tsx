@@ -9,7 +9,7 @@ import axiosInstance from "@/lib/axios";
 import { API_ENDPOINTS } from "@/config/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Heart, Star, Package, Tag, Edit, Trash2, X, Maximize2 } from "lucide-react";
+import { ArrowLeft, Heart, Star, Package, Tag, Edit, Trash2, X, Maximize2, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { toggleFavorite, removeFavorite } from "@/store/slices/favoritesSlice";
 import { hydrateAuth } from "@/store/slices/authSlice";
@@ -43,6 +43,10 @@ export default function ProductDetailsPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [showFullImage, setShowFullImage] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   const productId = params.id as string;
   const isFavorite = product ? favorites.includes(product.id) : false;
@@ -74,21 +78,85 @@ export default function ProductDetailsPage() {
     }
   }, [productId]);
 
-  const handleToggleFavorite = () => {
-    if (product) {
-      const wasFavorite = isFavorite;
-      dispatch(toggleFavorite(product));
-      
-      if (wasFavorite) {
-        toast.info("Removed from favorites", {
-          description: `${product.title} has been removed from your favorites.`,
-        });
-      } else {
-        toast.success("Added to favorites", {
-          description: `${product.title} has been added to your favorites.`,
-        });
+  useEffect(() => {
+    setZoom(1);
+    setPosition({ x: 0, y: 0 });
+  }, [showFullImage, selectedImage]);
+
+  useEffect(() => {
+    if (!showFullImage || !product) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft" && product.images.length > 1) {
+        setSelectedImage((prev) => (prev === 0 ? product.images.length - 1 : prev - 1));
+      } else if (e.key === "ArrowRight" && product.images.length > 1) {
+        setSelectedImage((prev) => (prev === product.images.length - 1 ? 0 : prev + 1));
+      } else if (e.key === "Escape") {
+        setShowFullImage(false);
+      } else if (e.key === "+" || e.key === "=") {
+        e.preventDefault();
+        setZoom((prev) => Math.min(prev + 0.25, 3));
+      } else if (e.key === "-") {
+        e.preventDefault();
+        setZoom((prev) => Math.max(prev - 0.25, 0.5));
+      } else if (e.key === "0") {
+        e.preventDefault();
+        handleResetZoom();
       }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showFullImage, product]);
+
+  const handleZoomIn = () => setZoom((prev) => Math.min(prev + 0.25, 3));
+  const handleZoomOut = () => setZoom((prev) => Math.max(prev - 0.25, 0.5));
+  const handleResetZoom = () => {
+    setZoom(1);
+    setPosition({ x: 0, y: 0 });
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.1 : 0.1;
+      setZoom((prev) => Math.max(0.5, Math.min(3, prev + delta)));
     }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (zoom > 1) {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && zoom > 1) {
+      setPosition({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
+    }
+  };
+
+  const handleNextImage = () => {
+    if (!product) return;
+    setSelectedImage((prev) => (prev === product.images.length - 1 ? 0 : prev + 1));
+  };
+
+  const handlePrevImage = () => {
+    if (!product) return;
+    setSelectedImage((prev) => (prev === 0 ? product.images.length - 1 : prev - 1));
+  };
+
+  const handleMouseUp = () => setIsDragging(false);
+
+  const handleToggleFavorite = () => {
+    if (!product) return;
+    const wasFavorite = isFavorite;
+    dispatch(toggleFavorite(product));
+    toast[wasFavorite ? "info" : "success"](
+      wasFavorite ? "Removed from favorites" : "Added to favorites",
+      { description: `${product.title} has been ${wasFavorite ? "removed from" : "added to"} your favorites.` }
+    );
   };
 
   const handleDeleteClick = () => {
@@ -175,26 +243,20 @@ export default function ProductDetailsPage() {
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Images Section */}
             <div className="space-y-4">
-              <div className="relative w-full h-96 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden group cursor-pointer" onClick={() => setShowFullImage(true)}>
+              <div
+                className="relative w-full h-96 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden group cursor-pointer"
+                onClick={() => setShowFullImage(true)}
+              >
                 {mainImage ? (
                   <>
-                    <Image
-                      src={mainImage}
-                      alt={product.title}
-                      fill
-                      className="object-contain"
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                    />
+                    <Image src={mainImage} alt={product.title} fill className="object-contain" sizes="(max-width: 1024px) 100vw, 50vw" />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                       <Maximize2 className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                   </>
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
-                    No Image
-                  </div>
+                  <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">No Image</div>
                 )}
               </div>
 
@@ -205,25 +267,16 @@ export default function ProductDetailsPage() {
                       key={index}
                       onClick={() => setSelectedImage(index)}
                       className={`relative h-20 bg-gray-100 dark:bg-gray-700 rounded-md overflow-hidden border-2 ${
-                        selectedImage === index
-                          ? "border-red-500 dark:border-red-400"
-                          : "border-transparent"
+                        selectedImage === index ? "border-red-500 dark:border-red-400" : "border-transparent"
                       }`}
                     >
-                      <Image
-                        src={image}
-                        alt={`${product.title} ${index + 1}`}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 1024px) 25vw, 12.5vw"
-                      />
+                      <Image src={image} alt={`${product.title} ${index + 1}`} fill className="object-cover" sizes="(max-width: 1024px) 25vw, 12.5vw" />
                     </button>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Product Info Section */}
             <div className="space-y-6">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400 uppercase mb-2">{product.category}</p>
@@ -251,9 +304,7 @@ export default function ProductDetailsPage() {
                   )}
                 </div>
 
-                <div className="mb-6">
-                  <p className="text-4xl font-bold text-gray-900 dark:text-white">${product.price}</p>
-                </div>
+                <p className="text-4xl font-bold text-gray-900 dark:text-white mb-6">${product.price}</p>
               </div>
 
               {product.description && (
@@ -267,53 +318,31 @@ export default function ProductDetailsPage() {
 
               <div className="space-y-3">
                 <div className="flex gap-4">
-                  {mounted && isAuthenticated ? (
-                    <Button
-                      onClick={() => router.push(`/edit-product/${productId}`)}
-                      variant="outline"
-                      className="flex-1"
-                    >
-                      <Edit className="w-5 h-5 mr-2" />
-                      Edit Product
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => {
-                        toast.error("Please login to edit products", {
-                          description: "Redirecting to login page...",
-                        });
+                  <Button
+                    onClick={() => {
+                      if (mounted && isAuthenticated) {
+                        router.push(`/edit-product/${productId}`);
+                      } else {
+                        toast.error("Please login to edit products", { description: "Redirecting to login page..." });
                         router.push("/login");
-                      }}
-                      variant="outline"
-                      className="flex-1"
-                    >
-                      <Edit className="w-5 h-5 mr-2" />
-                      Edit Product
-                    </Button>
-                  )}
+                      }
+                    }}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <Edit className="w-5 h-5 mr-2" />
+                    Edit Product
+                  </Button>
                   <Button
                     onClick={handleToggleFavorite}
-                    variant={isFavorite ? "outline" : "outline"}
-                    className={`flex-1 ${
-                      isFavorite
-                        ? "border-red-500 bg-red-50 text-red-600 hover:bg-red-100"
-                        : ""
-                    }`}
+                    variant="outline"
+                    className={`flex-1 ${isFavorite ? "border-red-500 bg-red-50 text-red-600 hover:bg-red-100" : ""}`}
                   >
-                    <Heart
-                      className={`w-5 h-5 mr-2 ${
-                        isFavorite ? "fill-red-500 text-red-500" : ""
-                      }`}
-                    />
+                    <Heart className={`w-5 h-5 mr-2 ${isFavorite ? "fill-red-500 text-red-500" : ""}`} />
                     {isFavorite ? "Remove Favourite" : "Add to Favorites"}
                   </Button>
                 </div>
-                <Button
-                  onClick={handleDeleteClick}
-                  variant="destructive"
-                  disabled={deleting}
-                  className="w-full"
-                >
+                <Button onClick={handleDeleteClick} variant="destructive" disabled={deleting} className="w-full">
                   <Trash2 className="w-5 h-5 mr-2" />
                   {deleting ? "Deleting..." : "Delete Product"}
                 </Button>
@@ -335,7 +364,6 @@ export default function ProductDetailsPage() {
         loading={deleting}
       />
 
-      {/* Full Image Modal */}
       {showFullImage && mainImage && (
         <div 
           className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
@@ -348,19 +376,107 @@ export default function ProductDetailsPage() {
           >
             <X className="h-6 w-6" />
           </button>
-          <div className="relative w-full h-full max-w-7xl max-h-[90vh] flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
-            <Image
-              src={mainImage}
-              alt={product.title}
-              fill
-              className="object-contain"
-              sizes="100vw"
-              priority
-            />
+          
+          <div className="absolute top-4 left-4 z-[101] flex flex-col gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleZoomIn();
+              }}
+              className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              aria-label="Zoom in"
+            >
+              <ZoomIn className="h-5 w-5" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleZoomOut();
+              }}
+              className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              aria-label="Zoom out"
+            >
+              <ZoomOut className="h-5 w-5" />
+            </button>
+            {zoom !== 1 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleResetZoom();
+                }}
+                className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                aria-label="Reset zoom"
+              >
+                <RotateCw className="h-5 w-5" />
+              </button>
+            )}
           </div>
+          
+          {product.images.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrevImage();
+                }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-[101] p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                aria-label="Previous image"
+              >
+                <ChevronLeft className="h-8 w-8" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleNextImage();
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-[101] p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                aria-label="Next image"
+              >
+                <ChevronRight className="h-8 w-8" />
+              </button>
+            </>
+          )}
+
+          <div 
+            className="relative w-full h-full max-w-7xl max-h-[90vh] flex items-center justify-center overflow-hidden cursor-move" 
+            onClick={(e) => e.stopPropagation()}
+            onWheel={handleWheel}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+          >
+            <div
+              style={{
+                transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
+                transition: isDragging ? 'none' : 'transform 0.2s ease-out',
+                cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
+              }}
+              className="relative w-full h-full flex items-center justify-center"
+            >
+              <Image
+                src={product.images[selectedImage] || mainImage}
+                alt={product.title}
+                fill
+                className="object-contain"
+                sizes="100vw"
+                priority
+              />
+            </div>
+          </div>
+
+          {product.images.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[101] px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white text-sm">
+              {selectedImage + 1} / {product.images.length}
+            </div>
+          )}
+          {zoom !== 1 && (
+            <div className="absolute bottom-4 right-4 z-[101] px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm text-white text-sm">
+              {Math.round(zoom * 100)}%
+            </div>
+          )}
         </div>
       )}
     </main>
   );
 }
-
