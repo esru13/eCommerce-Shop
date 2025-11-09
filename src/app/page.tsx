@@ -1,16 +1,19 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchProducts } from "@/store/slices/productsSlice";
 import ProductCard from "@/components/ProductCard";
 import SearchBar from "@/components/SearchBar";
 import CategoryFilter from "@/components/CategoryFilter";
+import PriceFilter from "@/components/PriceFilter";
+import FilterModal from "@/components/FilterModal";
 import { Loader2 } from "lucide-react";
 
 export default function Home() {
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
   const dispatch = useAppDispatch();
-  const { products, loading, error, total, skip, selectedCategory } = useAppSelector(
+  const { products, loading, error, total, skip, selectedCategory, priceRange } = useAppSelector(
     (state) => state.products
   );
 
@@ -40,17 +43,27 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [loadMoreProducts]);
 
+  // Filter products by price range
+  const filteredProducts = priceRange
+    ? products.filter(
+        (product) =>
+          product.price >= priceRange.min && product.price <= priceRange.max
+      )
+    : products;
+
   const isInitialState = products.length === 0 && total === 0 && skip === 0;
   const showLoading = loading || (isInitialState && !error);
-  const showNoProducts = !loading && !isInitialState && products.length === 0 && !error;
+  const showNoProducts = !loading && !isInitialState && filteredProducts.length === 0 && !error;
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-2">
-        <div className="mb-2 flex items-center">
-          <SearchBar />
-        </div>
+        {/* CategoryFilter comes first */}
         <CategoryFilter />
+        {/* SearchBar comes after category filter */}
+        <SearchBar onFilterClick={() => setFilterModalOpen(true)} />
+        {/* Show FilterModal on mobile */}
+        <FilterModal open={filterModalOpen} onClose={() => setFilterModalOpen(false)} />
 
         {error && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded mb-4">
@@ -70,10 +83,10 @@ export default function Home() {
           </div>
         )}
 
-        {products.length > 0 && (
+        {filteredProducts.length > 0 && (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>

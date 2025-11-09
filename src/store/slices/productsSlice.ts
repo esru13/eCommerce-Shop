@@ -11,6 +11,7 @@ interface ProductsState {
   skip: number;
   limit: number;
   selectedCategory: string | null;
+  priceRange: { min: number; max: number } | null;
 }
 
 const initialState: ProductsState = {
@@ -21,6 +22,7 @@ const initialState: ProductsState = {
   skip: 0,
   limit: 10,
   selectedCategory: null,
+  priceRange: null,
 };
 
 export const fetchProducts = createAsyncThunk(
@@ -64,9 +66,13 @@ const productsSlice = createSlice({
       state.total = 0;
       state.error = null;
       state.selectedCategory = null;
+      state.priceRange = null;
     },
     setSelectedCategory: (state, action) => {
       state.selectedCategory = action.payload;
+    },
+    setPriceRange: (state, action) => {
+      state.priceRange = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -121,6 +127,6 @@ const productsSlice = createSlice({
   },
 });
 
-export const { resetProducts, setSelectedCategory } = productsSlice.actions;
+export const { resetProducts, setSelectedCategory, setPriceRange } = productsSlice.actions;
 export default productsSlice.reducer;
 
