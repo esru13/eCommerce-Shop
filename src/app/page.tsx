@@ -8,7 +8,6 @@ import SearchBar from "@/components/SearchBar";
 import CategoryFilter from "@/components/CategoryFilter";
 import PriceFilter from "@/components/PriceFilter";
 import FilterModal from "@/components/FilterModal";
-import { Loader2 } from "lucide-react";
 
 export default function Home() {
   const [filterModalOpen, setFilterModalOpen] = useState(false);
@@ -72,8 +71,8 @@ export default function Home() {
         )}
 
         {showLoading && products.length === 0 && (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-400 dark:text-gray-500" />
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
           </div>
         )}
 
@@ -93,7 +92,7 @@ export default function Home() {
 
             {loading && (
               <div className="flex justify-center items-center py-8">
-                <Loader2 className="w-8 h-8 animate-spin text-gray-400 dark:text-gray-500" />
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
               </div>
             )}
 
