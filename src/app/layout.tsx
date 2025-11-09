@@ -6,6 +6,7 @@ import { ReduxProvider } from "@/components/providers/ReduxProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import Navbar from "@/components/Navbar";
 import FloatingActions from "@/components/FloatingActions";
+import Footer from "@/components/Footer";
 import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -27,8 +28,16 @@ export default function RootLayout({
           <ThemeProvider>
             <Navbar />
             {children}
+            <Footer />
             <FloatingActions />
-            <Toaster position="top-right" richColors />
+            <Toaster 
+              position="top-right" 
+              richColors 
+              duration={6000}
+              closeButton
+              expand={true}
+              visibleToasts={5}
+            />
           </ThemeProvider>
         </ReduxProvider>
       </body>

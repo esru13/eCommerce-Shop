@@ -9,7 +9,7 @@ import axiosInstance from "@/lib/axios";
 import { API_ENDPOINTS } from "@/config/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Heart, Star, Package, Tag, Edit, Trash2 } from "lucide-react";
+import { ArrowLeft, Heart, Star, Package, Tag, Edit, Trash2, X, Maximize2 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { toggleFavorite, removeFavorite } from "@/store/slices/favoritesSlice";
 import { hydrateAuth } from "@/store/slices/authSlice";
@@ -42,6 +42,7 @@ export default function ProductDetailsPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [showFullImage, setShowFullImage] = useState(false);
 
   const productId = params.id as string;
   const isFavorite = product ? favorites.includes(product.id) : false;
@@ -176,15 +177,20 @@ export default function ProductDetailsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Images Section */}
             <div className="space-y-4">
-              <div className="relative w-full h-96 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+              <div className="relative w-full h-96 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden group cursor-pointer" onClick={() => setShowFullImage(true)}>
                 {mainImage ? (
-                  <Image
-                    src={mainImage}
-                    alt={product.title}
-                    fill
-                    className="object-contain"
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                  />
+                  <>
+                    <Image
+                      src={mainImage}
+                      alt={product.title}
+                      fill
+                      className="object-contain"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                      <Maximize2 className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                  </>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
                     No Image
@@ -328,6 +334,32 @@ export default function ProductDetailsPage() {
         variant="destructive"
         loading={deleting}
       />
+
+      {/* Full Image Modal */}
+      {showFullImage && mainImage && (
+        <div 
+          className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setShowFullImage(false)}
+        >
+          <button
+            onClick={() => setShowFullImage(false)}
+            className="absolute top-4 right-4 z-[101] p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+            aria-label="Close image"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <div className="relative w-full h-full max-w-7xl max-h-[90vh] flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            <Image
+              src={mainImage}
+              alt={product.title}
+              fill
+              className="object-contain"
+              sizes="100vw"
+              priority
+            />
+          </div>
+        </div>
+      )}
     </main>
   );
 }
