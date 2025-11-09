@@ -8,6 +8,7 @@ import { toggleTheme } from "@/store/slices/themeSlice";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function Navbar() {
   const router = useRouter();
@@ -58,7 +59,12 @@ export default function Navbar() {
     dispatch(logout());
     setUserMenuOpen(false);
     setMobileMenuOpen(false);
-    router.push("/login");
+    toast.success("Logged out successfully", {
+      description: "You have been logged out. Redirecting to login page...",
+    });
+    setTimeout(() => {
+      router.push("/login");
+    }, 1000);
   };
 
   return (
