@@ -30,12 +30,12 @@ export default function FavoritesPage() {
         {favoriteProducts.length === 0 ? (
           <div className="text-center py-12">
             <Heart className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-500 dark:text-gray-400 text-lg">
-              Start adding products to your favorites!
-              <div>
-              <Link href="/" className="text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline">Products page</Link>
-              </div>
-            </p>
+            <div className="text-gray-500 dark:text-gray-400 text-lg">
+              <p className="mb-2">Start adding products to your favorites!</p>
+              <Link href="/" className="text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline">
+                Products page
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
